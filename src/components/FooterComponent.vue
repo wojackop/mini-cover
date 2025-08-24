@@ -14,6 +14,7 @@
       <span>诚信</span>
       <span>友善</span>
     </div>
+    
     <div class="mt-2 space-x-2">
       <span>© 2025</span>
       <a href="https://bsgun.cn"
