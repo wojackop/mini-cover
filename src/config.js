@@ -10,7 +10,7 @@ const fonts = [
 ];
 
 export const defaultConfig = {
-    text: '沉默の大多数',       // 默认文本
+    text: '格物致知',       // 默认文本
     watermark: '@AhHui', // 默认水印
     fontFamily: import.meta.env.VITE_APP_FONT_FAMILY,
     fontStyles: fonts.map(f => f[2]).filter(Boolean),
