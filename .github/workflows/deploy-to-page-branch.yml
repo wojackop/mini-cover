@@ -47,7 +47,7 @@ jobs:
           git commit -m "feat: deploy built files from main @ ${{ github.sha }}"
 
       - name: Push to page branch
-        uses: ad-m/github-push-action@main  # ✅ 使用 main 分支，避免版本冲突
+        uses: ad-m/github-push-action@master  # ✅ 使用 master 分支
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: page
