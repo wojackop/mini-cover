@@ -1,5 +1,5 @@
 # .github/workflows/deploy-to-page-branch.yml
-name: Deploy dist to page branch
+name: Deploy dist to page branch (no GitHub Pages)
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout main branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 获取完整历史，便于切换分支
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -26,6 +26,13 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Check if build succeeded
+        run: |
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ Build failed: dist/index.html not found"
+            exit 1
+          fi
+
       - name: Setup Git user
         run: |
           git config --local user.email "action@github.com"
@@ -33,13 +40,14 @@ jobs:
 
       - name: Create or switch to page branch
         run: |
-          git checkout --orphan page  # 创建空分支（无历史）
-          git rm -rf .                # 清空所有文件（包括 .gitignore 等）
-          git add .                   # 添加新内容
-          git commit -m "feat: deploy built files from main @ ${{ github.sha }}" --allow-empty
+          git checkout --orphan page
+          git rm -rf .
+          cp -r dist/* .  # ⭐️ 将 dist 下所有文件复制到根目录（展平）
+          git add .
+          git commit -m "feat: deploy built files from main @ ${{ github.sha }}"
 
       - name: Push to page branch
-        uses: ad-m/github-push-action@v0.9.0
+        uses: ad-m/github-push-action@v0.12.0  # ✅ 更新为 v0.12.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: page
