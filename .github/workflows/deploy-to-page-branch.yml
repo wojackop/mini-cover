@@ -1,5 +1,5 @@
 # .github/workflows/deploy-to-page-branch.yml
-name: Deploy dist to page branch
+name: Deploy dist to page branch (no GitHub Pages)
 
 on:
   push:
