@@ -4,6 +4,7 @@ name: Deploy dist to page branch (no GitHub Pages)
 on:
   push:
     branches: [ main ]
+  workflow_dispatch: 
 
 jobs:
   deploy:
@@ -42,14 +43,15 @@ jobs:
         run: |
           git checkout --orphan page
           git rm -rf .  # 清空所有文件
-          
-          # ✅ 使用 rsync 展平 dist/ 内容到根目录
-          rsync -av --delete dist/ ./
-          
-          # 或者用 find + cp（备用方案）
-          # find dist/ -type f -exec cp {} ./ \;
-          # find dist/ -type d -exec mkdir -p {} \;  # 递归创建目录
-          
+
+          # ✅ 展平 dist/ 内容到根目录
+          cp -r dist/* ./
+          # ✅ 复制隐藏文件（如 .htaccess, .gitignore）
+          cp -r dist/.* ./ 2>/dev/null || true  # 忽略不存在的隐藏文件错误
+
+          # ✅ 删除可能残留的构建配置文件
+          rm -f .gitignore package.json package-lock.json 2>/dev/null || true
+
           git add .
           git commit -m "feat: deploy built files from main @ ${{ github.sha }}"
 
