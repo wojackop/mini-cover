@@ -44,21 +44,25 @@ jobs:
           # 1. 切换到 page 分支（如果存在则切换，否则创建）
           git checkout --orphan page
 
-          # 2. 清空所有文件（确保干净）
+          # 2. 清空所有被 Git 跟踪的文件
           git rm -rf .
 
-          # 3. ✅ 关键：将 dist/ 内容 *展平* 复制到根目录
-          # 使用 find + cp 确保所有文件（包括隐藏文件）都被正确复制
+          # 3. ✅ 强制删除物理存在的 dist/ 目录（关键修复！）
+          rm -rf dist/
+
+          # 4. ✅ 展平复制 dist/ 内容到根目录（不含 dist/ 文件夹本身）
           cd dist
           find . -mindepth 1 -print0 | xargs -0 -I {} sh -c 'mkdir -p "$(dirname "../{}")" && cp -r "{}" "../{}"'
           cd ..
 
-          # 4. 删除可能残留的构建配置（如 package.json, node_modules）
+          # 5. 删除可能残留的构建配置文件（安全清理）
           rm -rf node_modules/ 2>/dev/null || true
           rm -f package.json package-lock.json .gitignore 2>/dev/null || true
 
-          # 5. 提交
+          # 6. 添加所有展平后的文件到暂存区
           git add .
+
+          # 7. 提交
           git commit -m "feat: deploy built files from main @ ${{ github.sha }}"
 
       - name: Push to page branch
