@@ -41,33 +41,22 @@ jobs:
 
       - name: Create or reset page branch
         run: |
-          # 1. 删除本地 page 分支（如果存在）
-          if git rev-parse --verify page >/dev/null 2>&1; then
-            git branch -D page
-          fi
-
-          # 2. 检查远程是否存在 page 分支
-          if git ls-remote --heads origin page >/dev/null 2>&1; then
-            echo "🗑️  Remote page branch exists, deleting..."
-            git push origin --delete page
-          else
-            echo "ℹ️  Remote page branch does not exist, skipping deletion."
-          fi
-
-          # 3. 创建全新的孤儿分支
+          # 1. 切换到 page 分支（如果存在则切换，否则创建）
           git checkout --orphan page
+
+          # 2. 清空所有文件（确保干净）
           git rm -rf .
 
-          # 4. ✅ 展平复制 dist/ 内容到根目录
+          # 3. ✅ 展平复制 dist/ 内容到根目录
           cd dist
           find . -mindepth 1 -print0 | xargs -0 -I {} sh -c 'mkdir -p "$(dirname "../{}")" && cp -r "{}" "../{}"'
           cd ..
 
-          # 5. 删除可能残留的构建配置
+          # 4. 删除可能残留的构建配置
           rm -rf node_modules/ 2>/dev/null || true
           rm -f package.json package-lock.json .gitignore 2>/dev/null || true
 
-          # 6. 提交
+          # 5. 提交
           git add .
           git commit -m "feat: deploy built files from main @ ${{ github.sha }}"
 
