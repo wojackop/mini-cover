@@ -4,7 +4,7 @@ name: Deploy dist to page branch
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   deploy:
@@ -47,12 +47,13 @@ jobs:
           # 2. 清空所有文件（确保干净）
           git rm -rf .
 
-          # 3. ✅ 展平复制 dist/ 内容到根目录
+          # 3. ✅ 关键：将 dist/ 内容 *展平* 复制到根目录
+          # 使用 find + cp 确保所有文件（包括隐藏文件）都被正确复制
           cd dist
           find . -mindepth 1 -print0 | xargs -0 -I {} sh -c 'mkdir -p "$(dirname "../{}")" && cp -r "{}" "../{}"'
           cd ..
 
-          # 4. 删除可能残留的构建配置
+          # 4. 删除可能残留的构建配置（如 package.json, node_modules）
           rm -rf node_modules/ 2>/dev/null || true
           rm -f package.json package-lock.json .gitignore 2>/dev/null || true
 
