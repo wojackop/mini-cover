@@ -25,7 +25,12 @@ jobs:
         run: npm ci
 
       - name: Build project
-        run: npm run build
+        run: |
+          echo "🚀 Starting build..."
+          ls -la  # 查看当前目录
+          npm run build
+          echo "✅ Build finished, checking dist..."
+          ls -la dist/  # 查看 dist 是否存在
 
       - name: Check if build succeeded
         run: |
